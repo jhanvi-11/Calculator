@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script> 
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-indigo-100">
+    <div class="bg-white max-w-2xl flex flex-col items-center justify-center p-10 rounded-2xl shadow-2xl border-4 border-indigo-200 relative">
+        <!-- Title and buttons -->
+        <div class="flex flex-col w-full max-w-md mb-4">
+            <h1 class="text-5xl text-indigo-700 font-extrabold drop-shadow-lg tracking-wide mb-4 text-center">Calculator</h1>
+            <div class="flex flex-row justify-end gap-4">
+                <button id="toggle-scientific" class="p-2 rounded-full bg-indigo-100 hover:bg-indigo-200 transition" title="Toggle Scientific">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-indigo-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <button id="toggle-converter" class="p-2 rounded-full bg-green-100 hover:bg-green-200 transition" title="Converters">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </button>
+                <!-- History Button -->
+                <button id="toggle-history" class="p-2 rounded-full bg-yellow-100 hover:bg-yellow-200 transition" title="History">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Display -->
+        <div id="display" class="bg-indigo-900 text-white rounded-lg mb-6 h-28 w-full max-w-md overflow-hidden break-all flex flex-col justify-end items-end p-4 shadow-inner">
+            <div id="main-value" class="text-4xl sm:text-5xl w-full text-right leading-tight">0</div>
+            <div id="preview-value" class="text-indigo-300 text-base sm:text-lg w-full text-right leading-tight"></div>
+        </div>
+        <!-- Button grid only contains buttons -->
+        <div id="button-grid" class="grid grid-cols-4 gap-4 transition-all duration-300 w-full max-w-md"></div>
+
+        <!-- Converter Modal -->
+        <div id="converter-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-2xl p-6 shadow-2xl w-[350px]">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-bold text-indigo-700">Select Conversion</span>
+                    <button id="close-converter" class="text-2xl text-indigo-700 hover:text-indigo-900">&times;</button>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <button class="conv-btn bg-indigo-100 hover:bg-indigo-200 p-4 rounded-lg flex flex-col items-center" data-conv="currency">
+                        <span class="text-2xl mb-1">💱</span>
+                        <span class="text-xs text-indigo-700">Currency</span>
+                    </button>
+                    <button class="conv-btn bg-indigo-100 hover:bg-indigo-200 p-4 rounded-lg flex flex-col items-center" data-conv="temperature">
+                        <span class="text-2xl mb-1">🌡️</span>
+                        <span class="text-xs text-indigo-700">Temp</span>
+                    </button>
+                    <button class="conv-btn bg-indigo-100 hover:bg-indigo-200 p-4 rounded-lg flex flex-col items-center" data-conv="length">
+                        <span class="text-2xl mb-1">📏</span>
+                        <span class="text-xs text-indigo-700">Length</span>
+                    </button>
+                    <button class="conv-btn bg-indigo-100 hover:bg-indigo-200 p-4 rounded-lg flex flex-col items-center" data-conv="area">
+                        <span class="text-2xl mb-1">🟦</span>
+                        <span class="text-xs text-indigo-700">Area</span>
+                    </button>
+                    <button class="conv-btn bg-indigo-100 hover:bg-indigo-200 p-4 rounded-lg flex flex-col items-center" data-conv="volume">
+                        <span class="text-2xl mb-1">🧊</span>
+                        <span class="text-xs text-indigo-700">Volume</span>
+                    </button>
+                    <button class="conv-btn bg-indigo-100 hover:bg-indigo-200 p-4 rounded-lg flex flex-col items-center" data-conv="weight">
+                        <span class="text-2xl mb-1">⚖️</span>
+                        <span class="text-xs text-indigo-700">Weight</span>
+                    </button>
+                    <button class="conv-btn bg-indigo-100 hover:bg-indigo-200 p-4 rounded-lg flex flex-col items-center" data-conv="speed">
+                        <span class="text-2xl mb-1">🏎️</span>
+                        <span class="text-xs text-indigo-700">Speed</span>
+                    </button>
+                    <button class="conv-btn bg-indigo-100 hover:bg-indigo-200 p-4 rounded-lg flex flex-col items-center" data-conv="pressure">
+                        <span class="text-2xl mb-1">🧯</span>
+                        <span class="text-xs text-indigo-700">Pressure</span>
+                    </button>
+                    <button class="conv-btn bg-indigo-100 hover:bg-indigo-200 p-4 rounded-lg flex flex-col items-center" data-conv="number">
+                        <span class="text-2xl mb-1">🔢</span>
+                        <span class="text-xs text-indigo-700">Number</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversion UI (hidden by default) -->
+        <div id="conversion-ui" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-2xl p-6 shadow-2xl w-[350px]">
+                <div class="flex justify-between items-center mb-4">
+                    <span id="conv-title" class="text-lg font-bold text-indigo-700"></span>
+                    <button id="close-conversion-ui" class="text-2xl text-indigo-700 hover:text-indigo-900">&times;</button>
+                </div>
+                <div class="mb-4">
+                    <input id="conv-input" type="number" class="w-full p-2 rounded border mb-2" placeholder="Enter value">
+                    <div class="flex gap-2 mb-2">
+                        <select id="conv-from" class="flex-1 p-2 rounded border"></select>
+                        <select id="conv-to" class="flex-1 p-2 rounded border"></select>
+                    </div>
+                    <div class="bg-indigo-100 rounded p-2 text-indigo-900 text-center">
+                        <span id="conv-output">Converted value will appear here</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab (hidden by default) -->
+        <div id="history-tab" class="fixed top-1/2 left-1/2 z-50 bg-white rounded-2xl shadow-2xl border-4 border-yellow-200 w-[350px] max-w-md p-6 flex flex-col items-center justify-start transition-all duration-300 hidden" style="transform: translate(-50%, -50%);">
+            <div class="flex justify-between items-center w-full mb-4">
+                <span class="text-lg font-bold text-yellow-700">History</span>
+                <button id="close-history" class="text-2xl text-yellow-700 hover:text-yellow-900">&times;</button>
+            </div>
+            <ul id="history-list" class="w-full text-right text-indigo-900 space-y-2 overflow-y-auto max-h-80">
+                <!-- History items will appear here -->
+            </ul>
+        </div>
+    </div>
+<script>
+const display = document.getElementById('display');
+const mainValue = document.getElementById('main-value');
+const previewValue = document.getElementById('preview-value');
+const buttonGrid = document.getElementById('button-grid');
+const toggleBtn = document.getElementById('toggle-scientific');
+let current = '0';
+let operator = null;
+let first = null;
+let waitingForSecond = false;
+let justCalculated = false;
+let scientificMode = false;
+
+const scientificRows = [
+  [
+    { label: 'π', action: 'pi' },
+    { label: 'sin', action: 'sin' },
+    { label: 'cos', action: 'cos' },
+    { label: 'tan', action: 'tan' },
+    { label: 'Rad', action: 'rad' },
+    { label: 'Deg', action: 'deg' }
+  ],
+  [
+    { label: 'eˣ', action: 'exp' },
+    { label: 'log', action: 'log' },
+    { label: 'ln', action: 'ln' },
+    { label: '(', action: 'open-paren' },
+    { label: ')', action: 'close-paren' },
+    { label: 'INV', action: 'inv' }
+  ]
+];
+
+function updateDisplay() {
+  mainValue.textContent = current.slice(0,10);
+
+  // Show live preview if operator and first number are set and user is typing second number
+  if (first !== null && operator && !waitingForSecond) {
+    let preview = '';
+    const second = parseFloat(current);
+    if (!isNaN(second)) {
+      if (operator === '+') preview = first + second;
+      if (operator === '-') preview = first - second;
+      if (operator === '*') preview = first * second;
+      if (operator === '/') preview = second !== 0 ? first / second : 'Error';
+      previewValue.textContent = `${first} ${operator} ${current} = ${String(preview).slice(0,10)}`;
+    } else {
+      previewValue.textContent = '';
+    }
+  } else {
+    previewValue.textContent = '';
+  }
+}
+
+function renderButtons() {
+  // Basic calculator buttons only
+  const basicButtons = `
+    <div class="col-span-6 grid grid-cols-4 gap-2 mt-2">
+      <button class="button bg-pink-500 hover:bg-pink-600 text-white text-xl rounded-lg p-2 shadow" data-action="clear">C</button>
+      <button class="button bg-pink-400 hover:bg-pink-500 text-white text-xl rounded-lg p-2 shadow" data-action="negate">+/-</button>
+      <button class="button bg-yellow-400 hover:bg-yellow-500 text-white text-xl rounded-lg p-2 shadow" data-action="percentage">%</button>
+      <button class="button bg-indigo-700 hover:bg-indigo-800 text-white text-xl rounded-lg p-2 shadow" data-operator="/">÷</button>
+
+      <button class="button bg-blue-400 hover:bg-blue-500 text-white text-xl rounded-lg p-2 shadow" data-number="7">7</button>
+      <button class="button bg-blue-400 hover:bg-blue-500 text-white text-xl rounded-lg p-2 shadow" data-number="8">8</button>
+      <button class="button bg-blue-400 hover:bg-blue-500 text-white text-xl rounded-lg p-2 shadow" data-number="9">9</button>
+      <button class="button bg-indigo-700 hover:bg-indigo-800 text-white text-xl rounded-lg p-2 shadow" data-operator="*">×</button>
+
+      <button class="button bg-blue-300 hover:bg-blue-400 text-white text-xl rounded-lg p-2 shadow" data-number="4">4</button>
+      <button class="button bg-blue-300 hover:bg-blue-400 text-white text-xl rounded-lg p-2 shadow" data-number="5">5</button>
+      <button class="button bg-blue-300 hover:bg-blue-400 text-white text-xl rounded-lg p-2 shadow" data-number="6">6</button>
+      <button class="button bg-indigo-700 hover:bg-indigo-800 text-white text-xl rounded-lg p-2 shadow" data-operator="-">−</button>
+
+      <button class="button bg-purple-300 hover:bg-purple-400 text-white text-xl rounded-lg p-2 shadow" data-number="1">1</button>
+      <button class="button bg-purple-300 hover:bg-purple-400 text-white text-xl rounded-lg p-2 shadow" data-number="2">2</button>
+      <button class="button bg-purple-300 hover:bg-purple-400 text-white text-xl rounded-lg p-2 shadow" data-number="3">3</button>
+      <button class="button bg-indigo-700 hover:bg-indigo-800 text-white text-xl rounded-lg p-2 shadow" data-operator="+">+</button>
+
+      <button class="button col-span-2 bg-green-400 hover:bg-green-500 text-white text-xl rounded-lg p-2 shadow" data-number="0">0</button>
+      <button class="button bg-yellow-400 hover:bg-yellow-500 text-white text-xl rounded-lg p-2 shadow" data-action="decimal">.</button>
+      <button class="button bg-indigo-900 hover:bg-indigo-700 text-white text-xl rounded-lg p-2 shadow" data-action="calculate">=</button>
+    </div>
+  `;
+
+  if (scientificMode) {
+    // Add scientific rows at the top and change grid to 6 columns
+    buttonGrid.className = "grid grid-cols-6 gap-2 transition-all duration-300 w-full max-w-md";
+    let sciRows = '';
+    for (let row of scientificRows) {
+      sciRows += `<div class="col-span-6 grid grid-cols-6 gap-2 mb-1">`;
+      for (let btn of row) {
+        sciRows += `<button class="button bg-indigo-200 hover:bg-indigo-300 text-indigo-900 text-sm rounded-lg p-2 shadow" data-action="${btn.action}">${btn.label}</button>`;
+      }
+      sciRows += `</div>`;
+    }
+    buttonGrid.innerHTML = sciRows + basicButtons;
+  } else {
+    buttonGrid.className = "grid grid-cols-4 gap-3 transition-all duration-300 w-full max-w-md";
+    buttonGrid.innerHTML = basicButtons;
+  }
+  attachButtonEvents();
+}
+
+toggleBtn.onclick = function () {
+  scientificMode = !scientificMode;
+  renderButtons();
+};
+
+// Attach event listeners to all buttons after rendering
+function attachButtonEvents() {
+  document.querySelectorAll('.button').forEach(btn => {
+    btn.onclick = function () {
+      handleButtonClick(btn);
+    };
+  });
+}
+
+// Main button handler (add your logic for scientific functions here)
+function handleButtonClick(btn) {
+    if (btn.hasAttribute('data-number')) {
+      // If just calculated and no operator, start new calculation
+      if (justCalculated && operator === null) {
+        current = btn.textContent;
+        justCalculated = false;
+      } else if (waitingForSecond) {
+        current = btn.textContent;
+        waitingForSecond = false;
+      } else {
+        current = current === '0' ? btn.textContent : current + btn.textContent;
+      }
+    }
+    if (btn.hasAttribute('data-action')) {
+      const action = btn.getAttribute('data-action');
+      if (action === 'clear') {
+        current = '0'; operator = null; first = null; waitingForSecond = false; justCalculated = false;
+        previewValue.textContent = '';
+      }
+      if (action === 'decimal' && !current.includes('.')) {
+        current += '.';
+      }
+      if (action === 'negate') {
+        current = (parseFloat(current) * -1).toString();
+      }
+      if (action === 'percentage') {
+        current = (parseFloat(current) / 100).toString();
+      }
+      if (action === 'calculate' && operator && first !== null) {
+        const second = parseFloat(current);
+        let result;
+        if (operator === '+') result = first + second;
+        if (operator === '-') result = first - second;
+        if (operator === '*') result = first * second;
+        if (operator === '/') result = second !== 0 ? first / second : 'Error';
+        current = result.toString();
+        previewValue.textContent = `${first} ${operator} ${second} = ${result}`;
+        // Add to history
+        addToHistory(`${first} ${operator} ${second} = ${result}`);
+        operator = null; first = null; waitingForSecond = false;
+        justCalculated = true;
+      }
+    }
+    if (btn.hasAttribute('data-operator')) {
+      operator = btn.getAttribute('data-operator');
+      first = parseFloat(current);
+      waitingForSecond = true;
+      justCalculated = false;
+    }
+    // Add scientific function handling here
+    const action = btn.getAttribute('data-action');
+    if (scientificMode && action) {
+      switch (action) {
+        case 'sin':
+          current = Math.sin(toRadians(parseFloat(current))).toString();
+          break;
+        case 'cos':
+          current = Math.cos(toRadians(parseFloat(current))).toString();
+          break;
+        case 'tan':
+          current = Math.tan(toRadians(parseFloat(current))).toString();
+          break;
+        case 'log':
+          current = Math.log10(parseFloat(current)).toString();
+          break;
+        case 'ln':
+          current = Math.log(parseFloat(current)).toString();
+          break;
+        case 'exp':
+          current = Math.exp(parseFloat(current)).toString();
+          break;
+        case 'pi':
+          current = Math.PI.toString();
+          break;
+        case 'e':
+          current = Math.E.toString();
+          break;
+        case 'sqrt':
+          current = Math.sqrt(parseFloat(current)).toString();
+          break;
+        case 'root':
+          current = Math.cbrt(parseFloat(current)).toString();
+          break;
+        case 'factorial':
+          current = factorial(parseFloat(current)).toString();
+          break;
+        case 'power':
+          operator = '^';
+          first = parseFloat(current);
+          waitingForSecond = true;
+          justCalculated = false;
+          return;
+        case 'inv':
+          current = (1 / parseFloat(current)).toString();
+          break;
+        case 'open-paren':
+        case 'close-paren':
+        case 'deg':
+        case 'rad':
+          alert('This function is not implemented in this demo.');
+          return;
+        default:
+          break;
+      }
+      updateDisplay();
+    }
+    updateDisplay();
+}
+
+// Helper functions
+function toRadians(deg) {
+  return deg * (Math.PI / 180);
+}
+function factorial(n) {
+  if (n < 0) return NaN;
+  if (n === 0) return 1;
+  let res = 1;
+  for (let i = 1; i <= n; i++) res *= i;
+  return res;
+}
+
+// Initial render
+renderButtons();
+
+// Converter modal logic
+const converterModal = document.getElementById('converter-modal');
+const toggleConverter = document.getElementById('toggle-converter');
+const closeConverter = document.getElementById('close-converter');
+const conversionUI = document.getElementById('conversion-ui');
+const closeConversionUI = document.getElementById('close-conversion-ui');
+const convTitle = document.getElementById('conv-title');
+const convInput = document.getElementById('conv-input');
+const convFrom = document.getElementById('conv-from');
+const convTo = document.getElementById('conv-to');
+const convOutput = document.getElementById('conv-output');
+
+toggleConverter.onclick = () => {
+    converterModal.classList.remove('hidden');
+};
+closeConverter.onclick = () => {
+    converterModal.classList.add('hidden');
+};
+closeConversionUI.onclick = () => {
+    conversionUI.classList.add('hidden');
+    converterModal.classList.remove('hidden');
+};
+
+// Conversion options for each feature (example for temperature, length, currency)
+const conversionOptions = {
+    currency: ['USD', 'EUR', 'INR'],
+    temperature: ['Celsius', 'Fahrenheit', 'Kelvin'],
+    length: ['Meter', 'Kilometer', 'Mile'],
+    area: ['Sq Meter', 'Sq Kilometer', 'Sq Mile'],
+    volume: ['Liter', 'Milliliter', 'Gallon'],
+    weight: ['Kilogram', 'Gram', 'Pound'],
+    speed: ['m/s', 'km/h', 'mph'],
+    pressure: ['Pascal', 'Bar', 'PSI'],
+    number: ['Binary', 'Decimal', 'Hexadecimal']
+};
+
+function convertValue(type, value, from, to) {
+    value = parseFloat(value);
+    if (isNaN(value)) return '';
+
+    // Temperature conversion
+    if (type === 'temperature') {
+        if (from === to) return value;
+        if (from === 'Celsius' && to === 'Fahrenheit') return (value * 9/5) + 32;
+        if (from === 'Fahrenheit' && to === 'Celsius') return (value - 32) * 5/9;
+        if (from === 'Celsius' && to === 'Kelvin') return value + 273.15;
+        if (from === 'Kelvin' && to === 'Celsius') return value - 273.15;
+        if (from === 'Fahrenheit' && to === 'Kelvin') return (value - 32) * 5/9 + 273.15;
+        if (from === 'Kelvin' && to === 'Fahrenheit') return (value - 273.15) * 9/5 + 32;
+    }
+
+    // Length conversion (Meter, Kilometer, Mile)
+    if (type === 'length') {
+        let meters = value;
+        if (from === 'Kilometer') meters = value * 1000;
+        if (from === 'Mile') meters = value * 1609.34;
+        // Convert meters to target unit
+        if (to === 'Meter') return meters;
+        if (to === 'Kilometer') return meters / 1000;
+        if (to === 'Mile') return meters / 1609.34;
+    }
+
+    // Area conversion (Sq Meter, Sq Kilometer, Sq Mile)
+    if (type === 'area') {
+        let sqm = value;
+        if (from === 'Sq Kilometer') sqm = value * 1e6;
+        if (from === 'Sq Mile') sqm = value * 2.59e6;
+        if (to === 'Sq Meter') return sqm;
+        if (to === 'Sq Kilometer') return sqm / 1e6;
+        if (to === 'Sq Mile') return sqm / 2.59e6;
+    }
+
+    // Volume conversion (Liter, Milliliter, Gallon)
+    if (type === 'volume') {
+        let liters = value;
+        if (from === 'Milliliter') liters = value / 1000;
+        if (from === 'Gallon') liters = value * 3.78541;
+        if (to === 'Liter') return liters;
+        if (to === 'Milliliter') return liters * 1000;
+        if (to === 'Gallon') return liters / 3.78541;
+    }
+
+    // Weight conversion (Kilogram, Gram, Pound)
+    if (type === 'weight') {
+        let kg = value;
+        if (from === 'Gram') kg = value / 1000;
+        if (from === 'Pound') kg = value * 0.453592;
+        if (to === 'Kilogram') return kg;
+        if (to === 'Gram') return kg * 1000;
+        if (to === 'Pound') return kg / 0.453592;
+    }
+
+    // Speed conversion (m/s, km/h, mph)
+    if (type === 'speed') {
+        let ms = value;
+        if (from === 'km/h') ms = value / 3.6;
+        if (from === 'mph') ms = value * 0.44704;
+        if (to === 'm/s') return ms;
+        if (to === 'km/h') return ms * 3.6;
+        if (to === 'mph') return ms / 0.44704;
+    }
+
+    // Pressure conversion (Pascal, Bar, PSI)
+    if (type === 'pressure') {
+        let pa = value;
+        if (from === 'Bar') pa = value * 100000;
+        if (from === 'PSI') pa = value * 6894.76;
+        if (to === 'Pascal') return pa;
+        if (to === 'Bar') return pa / 100000;
+        if (to === 'PSI') return pa / 6894.76;
+    }
+
+    // Currency conversion (USD, EUR, INR) - Example rates, not real-time!
+    if (type === 'currency') {
+        const rates = {
+            USD: 1,
+            EUR: 0.92,
+            INR: 83
+        };
+        let usd = value / rates[from];
+        return +(usd * rates[to]).toFixed(2);
+    }
+
+    // Number system conversion (Binary, Decimal, Hexadecimal)
+    if (type === 'number') {
+        let num;
+        if (from === 'Binary') num = parseInt(value, 2);
+        else if (from === 'Decimal') num = parseInt(value, 10);
+        else if (from === 'Hexadecimal') num = parseInt(value, 16);
+        else return '';
+        if (to === 'Binary') return num.toString(2);
+        if (to === 'Decimal') return num.toString(10);
+        if (to === 'Hexadecimal') return num.toString(16).toUpperCase();
+    }
+
+    return value;
+}
+// Handle feature selection
+document.querySelectorAll('.conv-btn').forEach(btn => {
+    btn.onclick = () => {
+        const type = btn.getAttribute('data-conv').trim(); // <-- trim to avoid invisible chars
+        convTitle.textContent = btn.textContent + " Converter";
+        convInput.value = '';
+        convOutput.textContent = 'Converted value will appear here';
+        // Populate dropdowns
+        convFrom.innerHTML = '';
+        convTo.innerHTML = '';
+        conversionOptions[type].forEach(opt => {
+            convFrom.innerHTML += `<option value="${opt}">${opt}</option>`;
+            convTo.innerHTML += `<option value="${opt}">${opt}</option>`;
+        });
+        // Show conversion UI
+        converterModal.classList.add('hidden');
+        conversionUI.classList.remove('hidden');
+        // Conversion event
+        convInput.oninput = convFrom.onchange = convTo.onchange = function() {
+            if (convInput.value === '') {
+                convOutput.textContent = 'Converted value will appear here';
+                return;
+            }
+            const result = convertValue(type, convInput.value, convFrom.value, convTo.value);
+            convOutput.textContent = result;
+        };
+    };
+});
+
+// --- History Feature ---
+let history = [];
+
+function addToHistory(entry) {
+    history.unshift(entry);
+    if (history.length > 10) history = history.slice(0, 10);
+    renderHistory();
+}
+
+function renderHistory() {
+    const list = document.getElementById('history-list');
+    if (!list) return;
+    list.innerHTML = history.length
+        ? history.map(item => `<li class="border-b pb-1">${item}</li>`).join('')
+        : `<li class="text-gray-400 italic">No history yet.</li>`;
+}
+
+// Show/hide history tab
+const toggleHistory = document.getElementById('toggle-history');
+const historyTab = document.getElementById('history-tab');
+const closeHistory = document.getElementById('close-history');
+
+toggleHistory.onclick = () => {
+    historyTab.classList.toggle('hidden');
+};
+closeHistory.onclick = () => {
+    historyTab.classList.add('hidden');
+};
+
+// Add to history on calculation
+// Find the handleButtonClick function and update the 'calculate' action:
+function handleButtonClick(btn) {
+    if (btn.hasAttribute('data-number')) {
+      // If just calculated and no operator, start new calculation
+      if (justCalculated && operator === null) {
+        current = btn.textContent;
+        justCalculated = false;
+      } else if (waitingForSecond) {
+        current = btn.textContent;
+        waitingForSecond = false;
+      } else {
+        current = current === '0' ? btn.textContent : current + btn.textContent;
+      }
+    }
+    if (btn.hasAttribute('data-action')) {
+      const action = btn.getAttribute('data-action');
+      if (action === 'clear') {
+        current = '0'; operator = null; first = null; waitingForSecond = false; justCalculated = false;
+        previewValue.textContent = '';
+      }
+      if (action === 'decimal' && !current.includes('.')) {
+        current += '.';
+      }
+      if (action === 'negate') {
+        current = (parseFloat(current) * -1).toString();
+      }
+      if (action === 'percentage') {
+        current = (parseFloat(current) / 100).toString();
+      }
+      if (action === 'calculate' && operator && first !== null) {
+        const second = parseFloat(current);
+        let result;
+        if (operator === '+') result = first + second;
+        if (operator === '-') result = first - second;
+        if (operator === '*') result = first * second;
+        if (operator === '/') result = second !== 0 ? first / second : 'Error';
+        current = result.toString();
+        previewValue.textContent = `${first} ${operator} ${second} = ${result}`;
+        // Add to history
+        addToHistory(`${first} ${operator} ${second} = ${result}`);
+        operator = null; first = null; waitingForSecond = false;
+        justCalculated = true;
+      }
+    }
+    if (btn.hasAttribute('data-operator')) {
+      operator = btn.getAttribute('data-operator');
+      first = parseFloat(current);
+      waitingForSecond = true;
+      justCalculated = false;
+    }
+    // Add scientific function handling here
+    const action = btn.getAttribute('data-action');
+    if (scientificMode && action) {
+      switch (action) {
+        case 'sin':
+          current = Math.sin(toRadians(parseFloat(current))).toString();
+          break;
+        case 'cos':
+          current = Math.cos(toRadians(parseFloat(current))).toString();
+          break;
+        case 'tan':
+          current = Math.tan(toRadians(parseFloat(current))).toString();
+          break;
+        case 'log':
+          current = Math.log10(parseFloat(current)).toString();
+          break;
+        case 'ln':
+          current = Math.log(parseFloat(current)).toString();
+          break;
+        case 'exp':
+          current = Math.exp(parseFloat(current)).toString();
+          break;
+        case 'pi':
+          current = Math.PI.toString();
+          break;
+        case 'e':
+          current = Math.E.toString();
+          break;
+        case 'sqrt':
+          current = Math.sqrt(parseFloat(current)).toString();
+          break;
+        case 'root':
+          current = Math.cbrt(parseFloat(current)).toString();
+          break;
+        case 'factorial':
+          current = factorial(parseFloat(current)).toString();
+          break;
+        case 'power':
+          operator = '^';
+          first = parseFloat(current);
+          waitingForSecond = true;
+          justCalculated = false;
+          return;
+        case 'inv':
+          current = (1 / parseFloat(current)).toString();
+          break;
+        case 'open-paren':
+        case 'close-paren':
+        case 'deg':
+        case 'rad':
+          alert('This function is not implemented in this demo.');
+          return;
+        default:
+          break;
+      }
+      updateDisplay();
+    }
+    updateDisplay();
+}
+</script>
+</body>
+</html>
